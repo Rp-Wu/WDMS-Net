@@ -1,41 +1,42 @@
 import torch
 import torchvision
 from torch import nn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader,  random_split
 from torch.utils.tensorboard import SummaryWriter
 import time
 from torchvision.transforms import transforms
-from Model.VGG19 import VGG19
+from WDMS_Net import WDMS_Net
 import os
 
-
-
 #指定日志及参数保存路径
-train_path="./VGG19"
+train_path="$pth$"
 writer= SummaryWriter(train_path)
+#Tensorboard --logdir=$pth$
 
-
-#device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')#
+#device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')#官方文档提供的三目运算判断是否使用gpu或者cpu方法
 
 #准备数据集
 transform_train = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.1087, 0.2388, 0.7831],std=[0.2581, 0.3698, 0.2378]),#Oringnal 10 person Dataset Mean&Std
+    transforms.Normalize(mean=[0.1087, 0.2388, 0.7831],std=[0.2581, 0.3698, 0.2378]),#This is the mean&std of the original environment train set of 10 person
+    # transforms.Normalize(mean=[0.099352, 0.22218624, 0.78959554],std=[0.24717692, 0.35978845, 0.22849967]),#This is the mean&std of the original environment train set of 5 person
     transforms.Resize([299,299])
 ])
+
 
 transform_valid = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.1087, 0.2388, 0.7831],std=[0.2581, 0.3698, 0.2378]),
+    # transforms.Normalize(mean=[0.099352, 0.22218624, 0.78959554],std=[0.24717692, 0.35978845, 0.22849967]),#这是14679五人数据集的均值和方差
+    transforms.Normalize(mean=[0.1087, 0.2388, 0.7831],std=[0.2581, 0.3698, 0.2378]),#这是18949原始十人数据集的均值和方差
     transforms.Resize([299,299])
 ])
 
-train_data = torchvision.datasets.ImageFolder(root="/3_pig_cropped_18949/train",  transform=transform_train)
+train_data = torchvision.datasets.ImageFolder(root="E:\Environment_Finetuning_DEV21\\train",  transform=transform_train)
 train_data_size=len(train_data)
-valid_data = torchvision.datasets.ImageFolder(root="/3_pig_cropped_18949/val",transform=transform_valid)
+valid_data = torchvision.datasets.ImageFolder(root="E:\Environment_Finetuning_DEV21\\val",transform=transform_valid)
 valid_data_size=len(valid_data)
-train_loader =DataLoader(train_data,batch_size=32, shuffle=True,num_workers=0)
-valid_loader =DataLoader(valid_data,batch_size=32, shuffle=False,num_workers=0)
+train_loader =DataLoader(train_data,batch_size=16, shuffle=True,num_workers=0)
+valid_loader =DataLoader(valid_data,batch_size=16, shuffle=False,num_workers=0)
 
 #保存模型参数
 def save_checkpoint(epoch, model, optimizer,best_accuracy, path):
@@ -45,7 +46,6 @@ def save_checkpoint(epoch, model, optimizer,best_accuracy, path):
         'optimizer_state_dict': optimizer.state_dict(),
         'best_accuracy':best_accuracy
     }, path)
-
 
 # 加载模型和优化器状态
 def load_checkpoint(model, optimizer,path):
@@ -58,7 +58,7 @@ def load_checkpoint(model, optimizer,path):
     return start_epoch,best_accuracy
 
 #网络
-model = VGG19(num_classes=10)
+model = WDMS_Net(num_classes=10)
 model.cuda()
 
 #损失函数(交叉熵)
@@ -66,20 +66,25 @@ loss_fn = nn.CrossEntropyLoss()
 loss_fn.cuda()
 
 #优化器
-learning_rate = 1e-3#原始学习率
+learning_rate = 1e-1#原始学习率
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate,momentum=0.9,weight_decay=1e-2)
-#设置训练参数
+checkpoint = torch.load("E:\Gait_Data\state (2).pth")
+model.load_state_dict(checkpoint['model_state_dict'])
+#冻结卷积层，解冻全连接分类头
+for param in model.parameters():
+    param.requires_grad = False
+for param in model.classifier.parameters():
+    param.requires_grad = True
 
+#设置训练参数
 total_train_step=0
 count_epoch=0
-# # count_epoch,best_accuracy=load_checkpoint(model,optimizer,path)
-best_accuracy=0.95
-# count_epoch,best_accuracy=load_checkpoint(model,optimizer,os.path.join(train_path,'state.pth'))
+best_accuracy=0.7
 
-epoch=75
+epoch=100
 start_time = time.time()
 for i in range(epoch):
-    model.train()
+    model.train()  # bn层和dropout层会受影响
     print("--------第{}轮训练--------".format(i+1))
     train_correct_number=0
     for data in train_loader:
@@ -103,7 +108,7 @@ for i in range(epoch):
     print("训练集的正确率: {}".format(train_correct_number/train_data_size))
     count_epoch+=1
     #学习率衰减
-    if count_epoch % 5 == 0:
+    if count_epoch % 10 == 0:
         for params in optimizer.param_groups:
             params['lr'] *= 0.6
 
@@ -111,6 +116,7 @@ for i in range(epoch):
     writer.add_scalar("accuracy_train",train_correct_number/train_data_size,count_epoch)
 
     #训练完一轮验证？测试一次
+
     model.eval()
     valid_correct_number = 0
     with torch.no_grad():
@@ -128,6 +134,8 @@ for i in range(epoch):
     print("验证集的正确率: {}".format(valid_correct_number / valid_data_size))
     if valid_accuracy> best_accuracy:
         best_accuracy = valid_accuracy
+        #torch.save(state,"Tensorboard_log/vgg16Channel_Normalize_ViT_batch=16_lr=0.001_Adam&weight_decay=1e-4-Hybrid_VGG16_ViT.pth")
         save_checkpoint(count_epoch,model,optimizer,best_accuracy,os.path.join(train_path,'state.pth'))
         print('最优验证正确率为{},当前模型参数已保存'.format(best_accuracy))
+    # scheduler.step()
 writer.close()

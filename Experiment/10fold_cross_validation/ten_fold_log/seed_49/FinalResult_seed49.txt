@@ -1,0 +1,5 @@
+=== Cross Validation Results ===
+Fold Accuracies: ['0.9794', '0.9799', '0.9784', '0.9821', '0.9784', '0.9799', '0.9810', '0.9810', '0.9810', '0.9820']
+Mean Validation Accuracy: 0.9803
+Variance: 0.000002
+Standard Deviation: 0.0013
