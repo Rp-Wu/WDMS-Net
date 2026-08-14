@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from thop import profile,clever_format
+from WaveDown_Block import WD
 
 ##随机初始化种子固定可复现：
 seed = 49#seed必须是int，可以自行设置
@@ -16,9 +17,9 @@ torch.backends.cudnn.deterministic = True#除非为了让训练结果“完全�
 # 但是由于噪声和不同的硬件条件，即使是同一台机器，benchmark都可能会选择不同的算法。为了消除这个随机性，设置为 False
 torch.backends.cudnn.benchmark = False
 
-class VGG19(nn.Module):
+class VGG19_FC_WD(nn.Module):
     def __init__(self, num_classes=10):
-        super(VGG19, self).__init__()
+        super(VGG19_FC_WD, self).__init__()
         self.stage1_channels = 64
         self.stage2_channels = 128
         self.stage3_channels = 256
@@ -32,7 +33,7 @@ class VGG19(nn.Module):
             nn.Conv2d(self.stage1_channels, self.stage1_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(self.stage1_channels),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
+            WD(waveform = 'haar')
         )
         self.features2 = nn.Sequential(
             # Block 2
@@ -42,7 +43,7 @@ class VGG19(nn.Module):
             nn.Conv2d(self.stage2_channels, self.stage2_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(self.stage2_channels),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
+            WD(waveform = 'haar')
         )
         self.features3 = nn.Sequential(
             # Block 3
@@ -58,7 +59,7 @@ class VGG19(nn.Module):
             nn.Conv2d(self.stage3_channels, self.stage3_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(self.stage3_channels),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
+            WD(waveform = 'haar')
         )
         self.features4 = nn.Sequential(
             # Block 4
@@ -74,7 +75,7 @@ class VGG19(nn.Module):
             nn.Conv2d(self.stage4_channels, self.stage4_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(self.stage4_channels),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
+            WD(waveform = 'haar')
         )
         self.features5 = nn.Sequential(
             # Block 5
@@ -90,21 +91,13 @@ class VGG19(nn.Module):
             nn.Conv2d(self.stage5_channels, self.stage5_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(self.stage5_channels),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
+            WD(waveform = 'haar')
         )
-        self.avgpool = nn.AdaptiveAvgPool2d((7,7))
+        self.avgpool = nn.AdaptiveAvgPool2d((1,1))
+
         self.classifier = nn.Sequential(
-            nn.Linear(self.stage5_channels * 7 * 7, 4096),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=0.2),
-            nn.Linear(4096, 4096),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=0.2),
-            nn.Linear(4096, num_classes),
+            nn.Linear(self.stage5_channels, num_classes),
         )
-        # self.classifier = nn.Sequential(
-        #     nn.Linear(self.stage5_channels, num_classes),
-        # )
 
     def forward(self, x):
         x1 = self.features1(x)
@@ -119,7 +112,7 @@ class VGG19(nn.Module):
 
 
 if __name__ == "__main__":
-        model = VGG19(num_classes=10)
+        model = VGG19_FC_WD(num_classes=10)
         model.cuda()
         data = torch.ones((1, 3, 299,299)).cuda()
         # out = model.forward(data)

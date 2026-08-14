@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from thop import profile,clever_format
 
 ##随机初始化种子固定可复现：
