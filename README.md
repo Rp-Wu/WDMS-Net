@@ -47,17 +47,14 @@ Each script is self-contained; dataset and checkpoint paths are hard-coded and s
     # Cross-environment fine-tuning
     python Experiment/Finetuning.py
 
+    # Visualize the 10-fold cross-validation training curves
+    tensorboard --logdir Experiment/10fold_cross_validation/ten_fold_log
+
+The training logs of the 10-fold cross-validation (TensorBoard event files) are provided in `Experiment/10fold_cross_validation/ten_fold_log/`. After running the `tensorboard` command above, open http://localhost:6006 in your browser to view the training curves.
+
 Data should be organized in the standard `ImageFolder` layout (folder names as class labels), with images resized to 299×299 and normalized using the training-set statistics.
 
 Random seeds are fixed (`seed=49` by default) for reproducibility; the 10-fold results under four seeds are provided in `ten_fold_log/`.
-
-## TensorBoard
-
-The training logs of the 10-fold cross-validation (TensorBoard event files) are provided in `Experiment/10fold_cross_validation/ten_fold_log/`. To visualize the training curves, run:
-
-    tensorboard --logdir Experiment/10fold_cross_validation/ten_fold_log
-
-and open http://localhost:6006 in your browser.
 
 ## Citation
 
