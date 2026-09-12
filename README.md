@@ -51,9 +51,23 @@ Data should be organized in the standard `ImageFolder` layout (folder names as c
 
 Random seeds are fixed (`seed=49` by default) for reproducibility; the 10-fold results under four seeds are provided in `ten_fold_log/`.
 
+## TensorBoard
+
+The training logs of the 10-fold cross-validation (TensorBoard event files) are provided in `Experiment/10fold_cross_validation/ten_fold_log/`. To visualize the training curves, run:
+
+    tensorboard --logdir Experiment/10fold_cross_validation/ten_fold_log
+
+and open http://localhost:6006 in your browser.
+
 ## Citation
 
-If this repository is helpful for your research, please consider citing our paper.
+If this work is helpful to your research, it would be our greatest honor. We would greatly appreciate it if you could consider citing our paper.
+
+## Contact
+
+If you have any questions regarding the code, or need additional code that has not yet been released, please feel free to contact us at ruipeng_wu@mail.hfut.edu.cn. We are always happy to help.
+
+The gait dataset used in this study is still involved in our ongoing research, and therefore cannot be made fully public at this stage. It is available upon reasonable request: please kindly obtain permission from the corresponding author first, and then feel free to contact us at ruipeng_wu@mail.hfut.edu.cn to obtain the data. We sincerely appreciate your understanding.
 
 ## License
 
