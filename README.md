@@ -1,6 +1,6 @@
 # WDMS-Net
 
-Official PyTorch implementation of **"WDMS-Net: A Wavelet Downsampling and Multi-Scale Convolution Network for mmWave Radar-Based Gait Recognition"**.
+Official PyTorch implementation of **"WDMS-Net: A Wavelet Downsampling and Multi-Scale Convolution Network for Step-Wise mmWave Gait Recognition"**, published in *[Journal of Infrared, Millimeter, and Terahertz Waves](https://link.springer.com/article/10.1007/s10762-026-01174-9)* ([free view-only version](https://rdcu.be/3nSobhGR9XWa)).
 
 WDMS-Net performs gait recognition on mmWave radar time–Doppler images by replacing conventional pooling with wavelet downsampling (WD) and adopting a multi-scale (MS) convolution block, achieving 98.00% average accuracy (10-fold cross-validation) with 21.7 MB of parameters.
 
@@ -61,13 +61,21 @@ and open http://localhost:6006 in your browser.
 
 ## Citation
 
-If this work is helpful to your research, it would be our greatest honor. We would greatly appreciate it if you could consider citing our paper.
+If this work is helpful to your research, it would be our greatest honor. We would greatly appreciate it if you could consider citing our paper:
+
+    @article{wu2026wdmsnet,
+      title={WDMS-Net: A Wavelet Downsampling and Multi-Scale Convolution Network for Step-Wise mmWave Gait Recognition},
+      author={Wu, Ruipeng and Sun, Zhiyuan and Sun, Zeyue and Tu, Hao and Wang, Tao},
+      journal={Journal of Infrared, Millimeter, and Terahertz Waves},
+      year={2026},
+      doi={10.1007/s10762-026-01174-9}
+    }
 
 ## Contact
 
 If you have any questions regarding the code, or need additional code that has not yet been released, please feel free to contact us at ruipeng_wu@mail.hfut.edu.cn. We are always happy to help.
 
-The gait dataset used in this study is still involved in our ongoing research, and therefore cannot be made fully public at this stage. It is available upon reasonable request: please kindly obtain permission from the corresponding author first, and then feel free to contact us at ruipeng_wu@mail.hfut.edu.cn to obtain the data. We sincerely appreciate your understanding.
+The gait dataset used in this study is still involved in our ongoing research, and therefore cannot be made fully public at this stage. It is available upon reasonable request: please kindly obtain permission from the corresponding author first, and then feel free to reach us at ruipeng_wu@mail.hfut.edu.cn to obtain the data. We sincerely appreciate your understanding.
 
 ## License
 
