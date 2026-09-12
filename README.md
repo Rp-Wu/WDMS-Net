@@ -1,0 +1,60 @@
+# WDMS-Net
+
+Official PyTorch implementation of **"WDMS-Net: A Wavelet Downsampling and Multi-Scale Convolution Network for mmWave Radar-Based Gait Recognition"**.
+
+WDMS-Net performs gait recognition on mmWave radar time–Doppler images by replacing conventional pooling with wavelet downsampling (WD) and adopting a multi-scale (MS) convolution block, achieving 98.00% average accuracy (10-fold cross-validation) with 21.7 MB of parameters.
+
+## Repository Structure
+
+    WDMS-Net
+    ├── Main/                          # Main code for model training and validation in the paper
+    │   ├── train_valid.py             # Training & validation
+    │   ├── validation_result.py       # Per-class accuracy evaluation
+    │   └── checkout_saveload.py       # Checkpoint save/load utilities
+    ├── Model/                         # Models used in the main-module ablation study (Table 5)
+    │   ├── VGG19.py                   # VGG19 baseline
+    │   ├── VGG19_FC.py                # VGG19 with modified FC layers
+    │   ├── VGG19_FC_WD.py             # VGG19_FC + wavelet downsampling
+    │   ├── WDMS_Net.py                # Proposed WDMS-Net
+    │   ├── WaveDown_Block.py          # Wavelet downsampling module (WD)
+    │   └── MultiScale_Layer.py        # Multi-scale convolution module (MS)
+    └── Experiment/                    # Supplementary experiments
+        ├── Finetuning.py              # Cross-environment fine-tuning
+        └── 10fold_cross_validation/
+            ├── cross_validation.py    # Stratified 10-fold cross-validation
+            └── ten_fold_log/          # TensorBoard logs & results (seeds: 49 / 88 / 520 / 2026)
+
+## Requirements
+
+- Python 3.8, PyTorch (CUDA recommended)
+- Additional dependencies: `torchvision`, `pytorch_wavelets`, `thop`, `tensorboard`, `scikit-learn`, `Pillow`, `NumPy`
+
+    pip install torch torchvision pytorch_wavelets thop tensorboard scikit-learn pillow numpy
+
+## Usage
+
+Each script is self-contained; dataset and checkpoint paths are hard-coded and should be modified before running.
+
+    # Training & validation (paper model)
+    python Main/train_valid.py
+
+    # Per-class accuracy evaluation
+    python Main/validation_result.py
+
+    # Stratified 10-fold cross-validation
+    python Experiment/10fold_cross_validation/cross_validation.py
+
+    # Cross-environment fine-tuning
+    python Experiment/Finetuning.py
+
+Data should be organized in the standard `ImageFolder` layout (folder names as class labels), with images resized to 299×299 and normalized using the training-set statistics.
+
+Random seeds are fixed (`seed=49` by default) for reproducibility; the 10-fold results under four seeds are provided in `ten_fold_log/`.
+
+## Citation
+
+If this repository is helpful for your research, please consider citing our paper.
+
+## License
+
+This project is released under the [MIT License](LICENSE).
