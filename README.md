@@ -35,6 +35,8 @@ WDMS-Net performs gait recognition on mmWave radar time–Doppler images by repl
 
 Each script is self-contained; dataset and checkpoint paths are hard-coded and should be modified before running.
 
+Data should be organized in the standard `ImageFolder` layout (folder names as class labels), with images resized to 299×299 and normalized using the training-set statistics.
+
     # Training & validation (paper model)
     python Main/train_valid.py
 
@@ -51,8 +53,6 @@ Each script is self-contained; dataset and checkpoint paths are hard-coded and s
     tensorboard --logdir Experiment/10fold_cross_validation/ten_fold_log
 
 The training logs of the 10-fold cross-validation (TensorBoard event files) are provided in `Experiment/10fold_cross_validation/ten_fold_log/`. After running the `tensorboard` command above, open http://localhost:6006 in your browser to view the training curves.
-
-Data should be organized in the standard `ImageFolder` layout (folder names as class labels), with images resized to 299×299 and normalized using the training-set statistics.
 
 Random seeds are fixed (`seed=49` by default) for reproducibility; the 10-fold results under four seeds are provided in `ten_fold_log/`.
 
