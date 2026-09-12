@@ -8,7 +8,7 @@ from PIL import Image
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score
 from torch.utils.tensorboard import SummaryWriter
-from WDMS_Net import WDMS_Net
+from Model.WDMS_Net import WDMS_Net
 
 
 class UnnormalizedDataset(Dataset):

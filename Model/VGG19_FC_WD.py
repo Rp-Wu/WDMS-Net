@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from thop import profile,clever_format
-from WaveDown_Block import WD
+from Model.WaveDown_Block import WD
 
 ##随机初始化种子固定可复现：
 seed = 49#seed必须是int，可以自行设置

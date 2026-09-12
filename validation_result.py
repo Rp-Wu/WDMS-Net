@@ -1,8 +1,8 @@
 import time
 import torchvision
 from torch.utils.data import DataLoader
-from torchvision import transforms, datasets
-from WDMS_Net import WDMS_Net
+from torchvision import transforms
+from Model.WDMS_Net import WDMS_Net
 from checkout_saveload import *
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
